@@ -17,7 +17,6 @@ func TestIssuerClaimRSA256(t *testing.T) {
 	}
 	claim := &Claim{
 		Context: []string{"github.com/Ning-Qing"},
-		ID:      "did:example:user",
 		Doc: &Doc{
 			Issuer:            "did:example:issuer",
 			IssuanceDate:      time.Now().String(),
@@ -26,7 +25,7 @@ func TestIssuerClaimRSA256(t *testing.T) {
 			CredentialSubject: nil,
 		},
 	}
-	claim.Sign("did:example:issuer", "did:example:user#test", privKey)
+	claim.Sign("did:example:user#test", privKey)
 	res, _ := claim.Serialization()
 	log.Println(string(res))
 }
@@ -39,7 +38,6 @@ func TestIssuerClaimES256(t *testing.T) {
 	}
 	claim := &Claim{
 		Context: []string{"github.com/Ning-Qing"},
-		ID:      "did:example:user",
 		Doc: &Doc{
 			Issuer:         "did:example:issuer",
 			IssuanceDate:   time.Now().String(),
@@ -47,7 +45,7 @@ func TestIssuerClaimES256(t *testing.T) {
 			Revocation:     "github.com/Ning-Qing",
 		},
 	}
-	claim.Sign("did:example:issuer", "did:example:user#did", privKey)
+	claim.Sign("did:example:user#did", privKey)
 	res, _ := claim.Serialization()
 	log.Println(string(res))
 }

@@ -2,13 +2,9 @@ package core
 
 import (
 	"crypto"
-	"crypto/ecdsa"
-	"crypto/rand"
-	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 )
 
 type Doc struct {
@@ -21,13 +17,11 @@ type Doc struct {
 
 type Claim struct {
 	Context []string `json:"@context"`
-	ID      string   `json:"id"`
 	*Doc
 	Proof *Proof `json:"proof"`
 }
 
 type Proof struct {
-	Creator            string `json:"creator"`
 	Type               string `json:"type"`
 	SignatureValue     string `json:"signatureValue"`
 	VerificationMethod string `json:"verificationMethod"`
@@ -48,43 +42,21 @@ func (c *Claim) Hash() ([]byte, error) {
 	return hash.Sum(nil), nil
 }
 
-func (c *Claim) Sign(signer, method string, privkey crypto.PrivateKey) error {
-	switch privateKey := privkey.(type) {
-	case *rsa.PrivateKey:
-		digest, err := c.Hash()
-		if err != nil {
-			return err
-		}
-		sign, err := privateKey.Sign(rand.Reader, digest, crypto.SHA256)
-		if err != nil {
-			return err
-		}
-		signatureValue := base64.StdEncoding.EncodeToString(sign)
-		c.Proof = &Proof{
-			Creator:            signer,
-			Type:               RSA256,
-			SignatureValue:     signatureValue,
-			VerificationMethod: method,
-		}
-		return nil
-	case *ecdsa.PrivateKey:
-		digest, err := c.Hash()
-		if err != nil {
-			return err
-		}
-		sign, err := privateKey.Sign(rand.Reader, digest, crypto.SHA256)
-		if err != nil {
-			return err
-		}
-		signatureValue := base64.StdEncoding.EncodeToString(sign)
-		c.Proof = &Proof{
-			Creator:            signer,
-			Type:               ES256,
-			SignatureValue:     signatureValue,
-			VerificationMethod: method,
-		}
-		return nil
-	default:
-		return errors.New("unsupported type")
+func (c *Claim) Sign(method string, privkey crypto.PrivateKey) error {
+	key := NewPrivKeyFactory(privkey)
+	digest, err := c.Hash()
+	if err != nil {
+		return err
 	}
+	sign, err := key.Sign(digest)
+	if err != nil {
+		return err
+	}
+	signatureValue := base64.StdEncoding.EncodeToString(sign)
+	c.Proof = &Proof{
+		Type:               RSA256,
+		SignatureValue:     signatureValue,
+		VerificationMethod: method,
+	}
+	return nil
 }

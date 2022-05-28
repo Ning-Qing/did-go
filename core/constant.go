@@ -1,6 +1,0 @@
-package core
-
-const (
-	RSA256 = "RSA256_PKSC1-V1.5_2048_SHA-256"
-	ES256  = "ECDSA_P256_SHA-256"
-)

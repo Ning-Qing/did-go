@@ -1,3 +1,3 @@
 module github.com/Ning-Qing/did-go
 
-go 1.18
+go 1.17

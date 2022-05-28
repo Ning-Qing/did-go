@@ -20,8 +20,8 @@ func TestCreatDocument(t *testing.T) {
 	if err != nil {
 		log.Println(err)
 	}
-	verifMethod := CreateVerificationMethod("did:example:user#test", "did:example:issuer", &privKey.PublicKey)
-	doc.PutVerifMethod(verifMethod)
+	verifMethod := NewVerificationMethod("did:example:user#test", "did:example:issuer", &privKey.PublicKey)
+	doc.PutVerifyMethod(verifMethod)
 	res, _ := doc.Serialization()
 	log.Println(string(res))
 }
@@ -37,16 +37,16 @@ func TestPutVerifMethod(t *testing.T) {
 	if err != nil {
 		log.Println(err)
 	}
-	method1 := CreateVerificationMethod("did:example:user#rsa", "did:example:issuer", &privKey1.PublicKey)
-	doc.PutVerifMethod(method1)
+	method1 := NewVerificationMethod("did:example:user#rsa", "did:example:issuer", &privKey1.PublicKey)
+	doc.PutVerifyMethod(method1)
 
 	curve := elliptic.P256()
 	privKey2, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
 		log.Println(err)
 	}
-	method2 := CreateVerificationMethod("did:example:user#es", "did:example:issuer", &privKey2.PublicKey)
-	doc.PutVerifMethod(method2)
+	method2 := NewVerificationMethod("did:example:user#es", "did:example:issuer", &privKey2.PublicKey)
+	doc.PutVerifyMethod(method2)
 
 	res, _ := doc.Serialization()
 	log.Println(string(res))
