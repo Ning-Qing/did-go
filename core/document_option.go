@@ -5,14 +5,14 @@ type Option interface {
 }
 
 type authentication struct {
-	method *VerificationMethod
+	method string
 }
 
 func (a *authentication) apply(doc *Document) {
-	doc.Authentication = a.method
+	doc.Authentication = append(doc.Authentication, a.method)
 }
 
-func WithAuthentication(method *VerificationMethod) Option {
+func WithAuthentication(method string) Option {
 	return &authentication{
 		method: method,
 	}

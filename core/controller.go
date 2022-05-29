@@ -4,8 +4,13 @@ import (
 	"crypto"
 	"crypto/sha256"
 	"encoding/base64"
-	"fmt"
 	"log"
+)
+
+const (
+	SCHEME     = "did"
+	METHODNAME = "example"
+	BASEAUTH   = "baseauth"
 )
 
 type Controller struct {
@@ -18,21 +23,32 @@ func NewController(provider Provider) *Controller {
 	}
 }
 
-func (c *Controller) NewDID(method string, jwk Jwk) string {
+func (c *Controller) NewDID(jwk Jwk) string {
 	pubKey := jwk.GeneratePubKey()
-
-	did := fmt.Sprintf("did:%s:%s", method, generate(pubKey))
-	auth := fmt.Sprintf("%s#auth", did)
-
-	doc := NewDocument(did, WithAuthentication(NewVerificationMethod(auth, did, pubKey)))
-
+	url := &URL{
+		Scheme:   SCHEME,
+		Method:   METHODNAME,
+		Path:     generate(pubKey),
+		Fragment: BASEAUTH,
+	}
+	baseauth := NewVerificationMethod(url.DIDServer(), url.DID(), pubKey)
+	doc := NewDocument(url.DID(), WithAuthentication(url.DIDServer()))
+	doc.PutVerifyMethod(baseauth)
 	c.provider.PutDocument(doc)
-	return did
+	return url.DID()
 }
 
-func (c *Controller) ValidateClaim(claim *Claim) bool {
-	// doc := c.provider.GetDocument(claim.Issuer)
-	return false
+func (c *Controller) GetDocument(id string) *Document {
+	return c.provider.GetDocument(id)
+}
+
+func (c *Controller) AuthenticationClaim(claim *Claim) bool {
+	doc := c.provider.GetDocument(claim.Issuer)
+	method := doc.GetAuthentication(claim.Proof.VerificationMethod)
+	if method == nil {
+		return false
+	}
+	return validateClaim(claim, method)
 }
 
 func generate(pubKey crypto.PublicKey) string {

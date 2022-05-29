@@ -3,10 +3,10 @@ package core
 import "sync"
 
 type Provider interface {
-	GetDocument(did string) *Document
+	GetDocument(id string) *Document
 	PutDocument(doc *Document)
 	UpdataDocument(doc *Document)
-	DeleteDocument(did string)
+	DeleteDocument(id string)
 }
 
 var _ Provider = (*MemoryProvider)(nil)
@@ -19,8 +19,8 @@ func NewMemoryProvider() *MemoryProvider {
 	return &MemoryProvider{}
 }
 
-func (p *MemoryProvider) GetDocument(did string) *Document {
-	v, ok := p.docs.Load(did)
+func (p *MemoryProvider) GetDocument(id string) *Document {
+	v, ok := p.docs.Load(id)
 	if !ok {
 		return nil
 	}
@@ -39,6 +39,6 @@ func (p *MemoryProvider) UpdataDocument(doc *Document) {
 	p.docs.Store(doc.ID, *doc)
 }
 
-func (p *MemoryProvider) DeleteDocument(did string) {
-	p.docs.Delete(did)
+func (p *MemoryProvider) DeleteDocument(id string) {
+	p.docs.Delete(id)
 }

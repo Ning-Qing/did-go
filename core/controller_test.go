@@ -12,14 +12,18 @@ import (
 
 func TestNewDID(t *testing.T) {
 	provider := NewMemoryProvider()
-	server := NewController(provider)
+	controller := NewController(provider)
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		log.Println(err)
 	}
 	pubKey := privKey.PublicKey
 
-	log.Println(server.NewDID("example", NewJwkRSA(&pubKey)))
+	did := controller.NewDID(NewJwkRSA(&pubKey))
+
+	doc := controller.provider.GetDocument(did)
+	res, _ := doc.Serialization()
+	log.Println(string(res))
 }
 
 func TestGenerate(t *testing.T) {

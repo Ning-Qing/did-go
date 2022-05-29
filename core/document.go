@@ -17,7 +17,7 @@ type Document struct {
 	// 因此满足这些验证方法的证明应被视为等同于DID主体提供的证明。
 	Controller []string `json:"controller"`
 
-	Authentication     *VerificationMethod   `json:"authentication"`
+	Authentication     []string              `json:"authentication"`
 	VerificationMethod []*VerificationMethod `json:"verificationMethod"`
 	Service            *Service              `json:"service"`
 }
@@ -47,6 +47,24 @@ func (d *Document) GetVerifyMethod(id string) *VerificationMethod {
 
 func (d *Document) Serialization() ([]byte, error) {
 	return json.Marshal(d)
+}
+
+func (d *Document) GetAuthentication(id string) *VerificationMethod {
+	for _, v := range d.Authentication {
+		if v == id {
+			return getVerifyMethod(d.VerificationMethod, id)
+		}
+	}
+	return nil
+}
+
+func getVerifyMethod(methods []*VerificationMethod, id string) *VerificationMethod {
+	for _, v := range methods {
+		if v.ID == id {
+			return v
+		}
+	}
+	return nil
 }
 
 type Service struct {
